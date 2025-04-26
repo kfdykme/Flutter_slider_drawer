@@ -27,9 +27,15 @@ class SliderDrawerController extends ChangeNotifier {
 
   void toggle() => isDrawerOpen ? closeSlider() : openSlider();
 
-  void openSlider() => animationController.forward();
+  void openSlider() => {
+        animationController.forward(),
+        _percent = animationController.upperBound,
+      };
 
-  void closeSlider() => animationController.reverse();
+  void closeSlider() => {
+        animationController.reverse(),
+        _percent = animationController.lowerBound,
+      };
 
   void startDragging() {
     _isDragging = true;
@@ -43,7 +49,18 @@ class SliderDrawerController extends ChangeNotifier {
   }
 
   void updatePosition(double percent) {
+    var isFirstEvent = _percent == animationController.lowerBound ||
+        _percent == animationController.upperBound;
+    final v = percent - _percent;
+
     _percent = percent;
+    if (isFirstEvent) {
+      return;
+    }
+    if (v < 0 && animationController.value == animationController.lowerBound) {
+      return;
+    }
+
     animationController.value = percent;
     notifyListeners();
   }
